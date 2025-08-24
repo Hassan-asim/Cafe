@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import Home from '../pages/Home';
 import About from '../pages/About';
 import Menu from '../pages/Menu';
@@ -31,21 +32,22 @@ const App = () => {
     }
   }, []);
 
-  return (
-    <div>
-      <Navbar toggleCart={toggleCart} />
-      <Cart isOpen={isCartOpen} toggleCart={toggleCart} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/menu" element={<Menu />} />
-        <Route path="/menu/:category" element={<MenuCategory />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="*" element={<Home />} />
-      </Routes>
-      <Footer />
-    </div>
-  );
+            return (
+            <div>
+              <Navbar toggleCart={toggleCart} />
+              <Cart isOpen={isCartOpen} toggleCart={toggleCart} />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/menu" element={<Menu />} />
+                <Route path="/menu/:category" element={<MenuCategory />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="*" element={<Home />} />
+              </Routes>
+              <Footer />
+              <Analytics />
+            </div>
+          );
 };
 
 export default App;

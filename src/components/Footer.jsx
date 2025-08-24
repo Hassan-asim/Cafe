@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { track } from '@vercel/analytics';
 
 const FooterContainer = styled.footer`
   padding: 2rem;
@@ -29,13 +30,33 @@ const Footer = () => {
           <strong>📍 Location:</strong> Shop#5, Mosaic District, 1-A Mir Chakar Khan Rd, I-8 Markaz, Islamabad, Pakistan
         </p>
         <p style={{ margin: '0.5rem 0', fontSize: '1rem' }}>
-          <strong>📧 Email:</strong> <a href="mailto:kurtos.pakistan@gmail.com" style={{ color: 'white', textDecoration: 'underline' }}>kurtos.pakistan@gmail.com</a>
+          <strong>📧 Email:</strong> <a 
+            href="mailto:kurtos.pakistan@gmail.com" 
+            style={{ color: 'white', textDecoration: 'underline' }}
+            onClick={() => track('email_clicked', { source: 'footer' })}
+          >
+            kurtos.pakistan@gmail.com
+          </a>
         </p>
       </div>
       
       <SocialLinks>
-        <a href="https://www.instagram.com/kurtos_pakistan/" target="_blank" rel="noopener noreferrer">Instagram</a>
-        <a href="https://www.facebook.com/kurtospakistan/" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a 
+          href="https://www.instagram.com/kurtos_pakistan/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          onClick={() => track('social_media_clicked', { platform: 'instagram', source: 'footer' })}
+        >
+          Instagram
+        </a>
+        <a 
+          href="https://www.facebook.com/kurtospakistan/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          onClick={() => track('social_media_clicked', { platform: 'facebook', source: 'footer' })}
+        >
+          Facebook
+        </a>
       </SocialLinks>
     </FooterContainer>
   );

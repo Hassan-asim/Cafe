@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
+import { track } from '@vercel/analytics';
 import { CartContext } from '../context/CartContext';
 
 const CartOverlay = styled.div`
@@ -349,7 +350,7 @@ const EmptyCart = styled.div`
 `;
 
 const Cart = ({ isOpen, toggleCart }) => {
-  const { cart, incrementQuantity, decrementQuantity, setCart } = useContext(CartContext);
+  const { cart, incrementQuantity, decrementQuantity, setCart, addToCart } = useContext(CartContext);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     phone: '',
@@ -393,6 +394,12 @@ Address: ${customerInfo.address}`;
       return;
     }
 
+    // Track checkout attempt
+    track('checkout_attempted', {
+      cartValue: calculateTotal().toFixed(2),
+      itemCount: cart.length
+    });
+
     try {
       setIsCheckingOut(true);
 
@@ -411,7 +418,7 @@ Address: ${customerInfo.address}`;
       };
 
       // Send order email via API
-      const response = await fetch('/api/send-email', {
+      const response = await fetch('/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -423,6 +430,13 @@ Address: ${customerInfo.address}`;
         const errorData = await response.json().catch(() => ({ message: 'Network error' }));
         throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
       }
+
+      // Track successful checkout
+      track('checkout_completed', {
+        orderTotal: totalAmount,
+        itemCount: cart.length,
+        customerName: customerInfo.name
+      });
 
       // Clear cart and form after successful checkout
       setCart([]);
@@ -451,6 +465,16 @@ Address: ${customerInfo.address}`;
       toggleCart();
     }
   };
+
+  // Track cart open
+  useEffect(() => {
+    if (isOpen) {
+      track('cart_opened', {
+        itemCount: cart.length,
+        cartValue: calculateTotal().toFixed(2)
+      });
+    }
+  }, [isOpen, cart.length]);
 
   return (
     <CartOverlay isOpen={isOpen} onClick={handleOverlayClick}>
@@ -533,13 +557,17 @@ Address: ${customerInfo.address}`;
                   }
                 </CheckoutButton>
                   
-                  <FoodpandaButton 
-                    href="https://www.foodpanda.pk/restaurant/y3wu/kurtos-i8" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
-                    Order via Foodpanda
-                  </FoodpandaButton>
+                                      <FoodpandaButton 
+                      href="https://www.foodpanda.pk/restaurant/y3wu/kurtos-i8" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      onClick={() => track('foodpanda_clicked', { 
+                        source: 'cart',
+                        cartValue: calculateTotal().toFixed(2)
+                      })}
+                    >
+                      Order via Foodpanda
+                    </FoodpandaButton>
                 </ButtonGroup>
               </CheckoutSection>
             </>

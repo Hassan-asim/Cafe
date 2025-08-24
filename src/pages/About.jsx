@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { track } from '@vercel/analytics';
 import StitchingMarks from '../components/StitchingMarks';
 import Banner from '../assets/banner.jpg';
 import Post1 from '../assets/post 1.jpg';
@@ -82,6 +83,11 @@ const GalleryImage = styled(motion.img)`
 `;
 
 const About = () => {
+  useEffect(() => {
+    // Track page view
+    track('page_viewed', { page: 'about' });
+  }, []);
+
   return (
     <AboutContainer>
       <Section>

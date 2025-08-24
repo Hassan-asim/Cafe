@@ -1,4 +1,5 @@
 import React, { createContext, useState } from 'react';
+import { track } from '@vercel/analytics';
 
 export const CartContext = createContext();
 
@@ -19,6 +20,15 @@ export const CartProvider = ({ children }) => {
         const price = item.price || item['Regular Price'] || item.Price || 0;
         return [...prevCart, { ...item, price, quantity: 1 }];
       }
+    });
+    
+    // Track item added to cart
+    const price = item.price || item['Regular Price'] || item.Price || 0;
+    track('item_added_to_cart', {
+      itemName: item.Item,
+      itemCategory: item.Category,
+      itemPrice: price,
+      itemSize: item.selectedSize || 'Regular'
     });
     
     // Show notification

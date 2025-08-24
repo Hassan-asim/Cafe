@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { track } from '@vercel/analytics';
 import Post1 from '../assets/post 1.jpg';
 import Post2 from '../assets/post 2.jpg';
 import Post3 from '../assets/post 3.jpg';
@@ -165,7 +166,12 @@ const Hero = () => {
       >
         Where Every Swirl Tells A Tale
       </Subtitle>
-      <ImmersiveButton href="http://3d.typs.dev" target="_blank" rel="noopener noreferrer">
+      <ImmersiveButton 
+        href="http://3d.typs.dev" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        onClick={() => track('3d_experience_clicked')}
+      >
         Get an immersive experience 3D walk through
       </ImmersiveButton>
     </HeroContainer>

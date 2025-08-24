@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useContext } from 'react';
 import styled from 'styled-components';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { track } from '@vercel/analytics';
 import { loadCsvFromPublic } from '../utils/csv';
 import { CartContext } from '../context/CartContext';
 import StitchingMarks from '../components/StitchingMarks';
@@ -74,8 +75,11 @@ const MenuCategory = () => {
   const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
+    // Track page view
+    track('page_viewed', { page: 'menu_category', category: decodeURIComponent(category) });
+    
     loadCsvFromPublic('Menu_Data.csv').then(setData).catch(() => setData([]));
-  }, []);
+  }, [category]);
 
   const items = useMemo(() => data.filter((i) => (i.Category || '').toLowerCase() === decodeURIComponent(category).toLowerCase()), [data, category]);
 
@@ -86,6 +90,15 @@ const MenuCategory = () => {
   const handleAdd = (item) => {
     const selectedSize = selectedSizes[item.Item] || (item['Regular Price'] ? 'Regular' : (item['Large Price'] ? 'Large' : ''));
     const price = selectedSize === 'Large' ? item['Large Price'] : (item['Regular Price'] || item.Price);
+    
+    // Track item added from category page
+    track('item_added_from_category', {
+      itemName: item.Item,
+      category: item.Category,
+      selectedSize,
+      price
+    });
+    
     addToCart({ ...item, selectedSize, price });
   };
 
@@ -93,7 +106,12 @@ const MenuCategory = () => {
 
   return (
     <Container>
-      <BackLink to="/menu">← Back to Categories</BackLink>
+      <BackLink 
+        to="/menu" 
+        onClick={() => track('navigation', { from: 'menu_category', to: 'menu', category: decodeURIComponent(category) })}
+      >
+        ← Back to Categories
+      </BackLink>
       <Title>{title}</Title>
       <StitchingMarks />
       <Grid>

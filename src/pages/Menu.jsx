@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { track } from '@vercel/analytics';
 import StitchingMarks from '../components/StitchingMarks';
 import { loadCsvFromPublic } from '../utils/csv';
 
@@ -71,6 +72,9 @@ const Menu = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    // Track page view
+    track('page_viewed', { page: 'menu' });
+    
     loadCsvFromPublic('Menu_Data.csv').then(setMenu).catch(() => setMenu([]));
   }, []);
 

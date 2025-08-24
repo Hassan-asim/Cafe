@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { track } from '@vercel/analytics';
 import Papa from 'papaparse';
 import StitchingMarks from '../components/StitchingMarks';
 
@@ -200,6 +201,8 @@ const Admin = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
+      // Track admin panel access
+      track('page_viewed', { page: 'admin' });
       loadData();
     }
   }, [isLoggedIn]);
@@ -260,8 +263,10 @@ const Admin = () => {
     e.preventDefault();
     // Simple hardcoded authentication (in production, use proper hashing)
     if (username === 'kurtos' && password === 'kurtos@021') {
+      track('admin_login', { success: true });
       setIsLoggedIn(true);
     } else {
+      track('admin_login', { success: false });
       alert('Invalid credentials');
     }
   };
@@ -271,6 +276,9 @@ const Admin = () => {
       const updatedCategories = [...categories, newCategory.trim()];
       setCategories(updatedCategories);
       setNewCategory('');
+      
+      // Track category addition
+      track('admin_category_added', { categoryName: newCategory.trim() });
       
       // Save updated categories to CSV
       await saveToCSV();
@@ -360,7 +368,12 @@ const Admin = () => {
       image: null
     });
     
-    alert('Item added successfully!');
+          track('admin_item_added', { 
+        itemName: newItem.name, 
+        category: newItem.category,
+        hasSizes: newItem.hasSizes
+      });
+      alert('Item added successfully!');
   };
 
   const handleEditItem = (item) => {
@@ -532,7 +545,10 @@ const Admin = () => {
               </span>
             )}
             <Button onClick={loadData} style={{ backgroundColor: '#17a2b8' }}>Refresh Data</Button>
-            <Button onClick={() => setIsLoggedIn(false)}>Logout</Button>
+                         <Button onClick={() => {
+               track('admin_logout');
+               setIsLoggedIn(false);
+             }}>Logout</Button>
           </div>
         </Header>
         <StitchingMarks />

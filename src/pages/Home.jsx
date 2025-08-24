@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { track } from '@vercel/analytics';
 import Hero from '../components/Hero';
 import FloatingIcons from '../components/FloatingIcons';
 
@@ -87,6 +88,9 @@ const Home = () => {
   const [featuredItems, setFeaturedItems] = useState([]);
 
   useEffect(() => {
+    // Track page view
+    track('page_viewed', { page: 'home' });
+    
     loadCsvFromPublic('Menu_Data.csv')
       .then((data) => setFeaturedItems(data.slice(0, 3)))
       .catch(() => setFeaturedItems([]));

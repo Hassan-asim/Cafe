@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { track } from '@vercel/analytics';
 import { CartContext } from '../context/CartContext';
 
 const Nav = styled.nav`
@@ -133,15 +134,27 @@ const Navbar = ({ toggleCart }) => {
     <>
       <Nav>
         <LogoSection>
-          <Logo />
+          <Link to="/" onClick={() => track('logo_clicked')}>
+            <Logo />
+          </Link>
           <BrandName>Kurtos</BrandName>
         </LogoSection>
         <NavLinks>
-          <NavLink to="/">Home</NavLink>
-          <NavLink to="/about">About</NavLink>
-          <NavLink to="/menu">Menu</NavLink>
-          <ExternalLink href="https://www.foodpanda.pk/restaurant/y3wu/kurtos-i8" target="_blank" rel="noopener noreferrer">Foodpanda</ExternalLink>
-          <CartButton onClick={toggleCart}>
+          <NavLink to="/" onClick={() => track('navigation', { to: 'home' })}>Home</NavLink>
+          <NavLink to="/about" onClick={() => track('navigation', { to: 'about' })}>About</NavLink>
+          <NavLink to="/menu" onClick={() => track('navigation', { to: 'menu' })}>Menu</NavLink>
+          <ExternalLink 
+            href="https://www.foodpanda.pk/restaurant/y3wu/kurtos-i8" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            onClick={() => track('foodpanda_clicked', { source: 'navbar' })}
+          >
+            Foodpanda
+          </ExternalLink>
+          <CartButton onClick={() => {
+            track('cart_opened', { source: 'navbar', itemCount: totalItems });
+            toggleCart();
+          }}>
             🛒
             {totalItems > 0 && <CartBadge>{totalItems}</CartBadge>}
           </CartButton>
