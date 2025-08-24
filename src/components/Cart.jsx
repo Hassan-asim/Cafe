@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import { track } from '@vercel/analytics';
+// import { track } from '@vercel/analytics';
 import { CartContext } from '../context/CartContext';
 
 const CartOverlay = styled.div`
@@ -395,10 +395,10 @@ Address: ${customerInfo.address}`;
     }
 
     // Track checkout attempt
-    track('checkout_attempted', {
-      cartValue: calculateTotal().toFixed(2),
-      itemCount: cart.length
-    });
+    // track('checkout_attempted', {
+    //   cartValue: calculateTotal().toFixed(2),
+    //   itemCount: cart.length
+    // });
 
     try {
       setIsCheckingOut(true);
@@ -432,11 +432,11 @@ Address: ${customerInfo.address}`;
       }
 
       // Track successful checkout
-      track('checkout_completed', {
-        orderTotal: totalAmount,
-        itemCount: cart.length,
-        customerName: customerInfo.name
-      });
+      // track('checkout_completed', {
+      //   orderTotal: totalAmount,
+      //   itemCount: cart.length,
+      //   customerName: customerInfo.name
+      // });
 
       // Clear cart and form after successful checkout
       setCart([]);
@@ -467,14 +467,14 @@ Address: ${customerInfo.address}`;
   };
 
   // Track cart open
-  useEffect(() => {
-    if (isOpen) {
-      track('cart_opened', {
-        itemCount: cart.length,
-        cartValue: calculateTotal().toFixed(2)
-      });
-    }
-  }, [isOpen, cart.length]);
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     // track('cart_opened', {
+  //     //   itemCount: cart.length,
+  //     //   cartValue: calculateTotal().toFixed(2)
+  //     // });
+  //   }
+  // }, [isOpen, cart.length]);
 
   return (
     <CartOverlay isOpen={isOpen} onClick={handleOverlayClick}>
@@ -561,10 +561,12 @@ Address: ${customerInfo.address}`;
                       href="https://www.foodpanda.pk/restaurant/y3wu/kurtos-i8" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      onClick={() => track('foodpanda_clicked', { 
-                        source: 'cart',
-                        cartValue: calculateTotal().toFixed(2)
-                      })}
+                                                onClick={() => {
+                            // track('foodpanda_clicked', { 
+                            //   source: 'cart',
+                            //   cartValue: calculateTotal().toFixed(2)
+                            // });
+                          }}
                     >
                       Order via Foodpanda
                     </FoodpandaButton>
