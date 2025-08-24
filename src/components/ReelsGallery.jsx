@@ -153,48 +153,50 @@ const FallbackCard = styled(motion.div)`
 
 const ReelsGallery = () => {
   const [playingVideo, setPlayingVideo] = useState(null);
+  const [videoErrors, setVideoErrors] = useState({});
+  const [videoLoading, setVideoLoading] = useState({});
   const videoRefs = useRef([]);
 
   // Updated paths for your actual video files
   const reels = [
     {
       id: 1,
-      src: '/src/assets/reel1.mp4',
+      src: '/reel1.mp4',
       title: 'Fresh Kurtos Making',
       description: 'Watch how we make our signature chimney cakes',
       rotate: -8
     },
     {
       id: 2,
-      src: '/src/assets/reel2.mp4',
+      src: '/reel2.mp4',
       title: 'Coffee Art',
       description: 'Beautiful latte art by our skilled baristas',
       rotate: 5
     },
     {
       id: 3,
-      src: '/src/assets/reel3.mp4',
+      src: '/reel3.mp4',
       title: 'Sweet Moments',
       description: 'Happy customers enjoying our treats',
       rotate: -3
     },
     {
       id: 4,
-      src: '/src/assets/reel4.mp4',
+      src: '/reel4.mp4',
       title: 'Behind the Scenes',
       description: 'A day in the life at Kurtos cafe',
       rotate: 7
     },
     {
       id: 5,
-      src: '/src/assets/reel5.mp4',
+      src: '/reel5.mp4',
       title: 'New Flavors',
       description: 'Taste our latest chimney cake flavors',
       rotate: -6
     },
     {
       id: 6,
-      src: '/src/assets/reel6.mp4',
+      src: '/reel6.mp4',
       title: 'Cozy Atmosphere',
       description: 'Experience the warm vibe of our cafe',
       rotate: 4
@@ -250,8 +252,59 @@ const ReelsGallery = () => {
               playsInline
               loop
               onEnded={handleVideoEnd}
-              onError={() => console.log(`Error loading ${reel.src}`)}
+              onError={(e) => {
+                console.error(`Error loading video ${reel.src}:`, e);
+                setVideoErrors(prev => ({ ...prev, [index]: true }));
+              }}
+              onLoadStart={() => setVideoLoading(prev => ({ ...prev, [index]: true }))}
+              onLoadedData={() => setVideoLoading(prev => ({ ...prev, [index]: false }))}
             />
+            {videoErrors[index] && (
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                color: 'white',
+                textAlign: 'center',
+                background: 'rgba(0,0,0,0.8)',
+                padding: '1rem',
+                borderRadius: '10px'
+              }}>
+                <p>Video unavailable</p>
+                <button 
+                  onClick={() => {
+                    setVideoErrors(prev => ({ ...prev, [index]: false }));
+                    const video = videoRefs.current[index];
+                    if (video) video.load();
+                  }}
+                  style={{
+                    background: '#E75480',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '5px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+            {videoLoading[index] && !videoErrors[index] && (
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                color: 'white',
+                background: 'rgba(0,0,0,0.8)',
+                padding: '1rem',
+                borderRadius: '10px'
+              }}>
+                Loading...
+              </div>
+            )}
             <PlayOverlay isPlaying={playingVideo === index} />
             <ReelInfo>
               <h4>{reel.title}</h4>

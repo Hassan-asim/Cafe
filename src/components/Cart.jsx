@@ -278,6 +278,10 @@ const CheckoutButton = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 
   &:hover:not(:disabled) {
     background: ${({ theme }) => theme.colors.secondary};
@@ -288,6 +292,20 @@ const CheckoutButton = styled.button`
     background: #ccc;
     cursor: not-allowed;
     transform: none;
+  }
+`;
+
+const LoadingSpinner = styled.div`
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 `;
 
@@ -337,6 +355,7 @@ const Cart = ({ isOpen, toggleCart }) => {
     phone: '',
     address: ''
   });
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const calculateTotal = () => {
     return cart.reduce((total, item) => {
@@ -368,26 +387,56 @@ Phone: ${customerInfo.phone}
 Address: ${customerInfo.address}`;
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!isFormValid()) {
       alert('Please fill in all required information');
       return;
     }
 
-    const orderSummary = generateOrderSummary();
-    const subject = `New Order from ${customerInfo.name}`;
-    const body = encodeURIComponent(orderSummary);
-    
-    // Create mailto link
-    const mailtoLink = `mailto:hassasasim337@gmail.com?subject=${encodeURIComponent(subject)}&body=${body}`;
-    window.location.href = mailtoLink;
-    
-    // Clear cart and form after checkout
-    setCart([]);
-    setCustomerInfo({ name: '', phone: '', address: '' });
-    
-    alert('Thank you for your order! Your email client will open to send the order details.');
-    toggleCart();
+    try {
+      setIsCheckingOut(true);
+
+      // Prepare order data
+      const orderData = {
+        customerName: customerInfo.name,
+        customerPhone: customerInfo.phone,
+        customerAddress: customerInfo.address,
+        cartItems: cart.map(item => ({
+          name: item.Item,
+          quantity: item.quantity,
+          price: parseFloat(item.price).toFixed(2),
+          size: item.selectedSize || 'Regular'
+        })),
+        totalAmount: calculateTotal().toFixed(2)
+      };
+
+      // Send order email via API
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Network error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // Clear cart and form after successful checkout
+      setCart([]);
+      setCustomerInfo({ name: '', phone: '', address: '' });
+      
+      alert('Thank you for your order! An email has been sent to our team with your order details.');
+      toggleCart();
+
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert(`Checkout failed: ${error.message}. Please try again or contact us directly.`);
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   const handleInputChange = (field, value) => {
@@ -470,12 +519,19 @@ Address: ${customerInfo.address}`;
                 </CheckoutForm>
                 
                 <ButtonGroup>
-                  <CheckoutButton 
-                    onClick={handleCheckout}
-                    disabled={!isFormValid()}
-                  >
-                    {isFormValid() ? 'Checkout via Email' : 'Please fill all fields'}
-                  </CheckoutButton>
+                                  <CheckoutButton
+                  onClick={handleCheckout}
+                  disabled={!isFormValid() || isCheckingOut}
+                  data-checkout-button
+                >
+                  {isCheckingOut && <LoadingSpinner />}
+                  {isCheckingOut 
+                    ? 'Processing Order...' 
+                    : isFormValid() 
+                      ? 'Checkout via Email' 
+                      : 'Please fill all fields'
+                  }
+                </CheckoutButton>
                   
                   <FoodpandaButton 
                     href="https://www.foodpanda.pk/restaurant/y3wu/kurtos-i8" 

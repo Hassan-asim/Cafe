@@ -10,7 +10,13 @@ const urlsToCache = [
   '/src/assets/post 2.jpg',
   '/src/assets/post 3.jpg',
   '/src/assets/post 4.jpg',
-  '/src/assets/post 6.jpg'
+  '/src/assets/post 6.jpg',
+  '/reel1.mp4',
+  '/reel2.mp4',
+  '/reel3.mp4',
+  '/reel4.mp4',
+  '/reel5.mp4',
+  '/reel6.mp4'
 ];
 
 const STATIC_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours

@@ -206,16 +206,51 @@ const Admin = () => {
 
   const loadData = async () => {
     try {
-      const response = await fetch('/Menu_Data.csv');
-      const csvText = await response.text();
-      const result = Papa.parse(csvText, { header: true });
-      const data = result.data.filter(row => Object.values(row).some(value => value !== null && value !== ''));
+      // First check if we have updated data in localStorage
+      const savedMenuData = localStorage.getItem('kurtosMenuData');
+      const savedCategories = localStorage.getItem('kurtosCategories');
       
-      setMenuItems(data);
+      if (savedMenuData && savedCategories) {
+        // Use the saved data from localStorage (most recent)
+        const parsedMenuData = JSON.parse(savedMenuData);
+        const parsedCategories = JSON.parse(savedCategories);
+        
+        setMenuItems(parsedMenuData);
+        setCategories(parsedCategories);
+        
+        console.log('Loaded data from localStorage (most recent changes)');
+        return;
+      }
       
-      // Extract unique categories
-      const uniqueCategories = [...new Set(data.map(item => item.Category).filter(Boolean))];
-      setCategories(uniqueCategories);
+      // If no localStorage data, load from CSV file
+      try {
+        const response = await fetch('/Menu_Data.csv');
+        if (!response.ok) {
+          throw new Error('Failed to fetch CSV');
+        }
+        const csvText = await response.text();
+        const result = Papa.parse(csvText, { header: true });
+        const data = result.data.filter(row => Object.values(row).some(value => value !== null && value !== ''));
+        
+        setMenuItems(data);
+        
+        // Extract unique categories
+        const uniqueCategories = [...new Set(data.map(item => item.Category).filter(Boolean))];
+        setCategories(uniqueCategories);
+        
+        console.log('Loaded data from CSV file');
+      } catch (error) {
+        console.error('Error loading CSV:', error);
+        // If CSV loading fails, try to load from localStorage as fallback
+        const savedMenuData = localStorage.getItem('kurtosMenuData');
+        if (savedMenuData) {
+          const parsedMenuData = JSON.parse(savedMenuData);
+          setMenuItems(parsedMenuData);
+          const uniqueCategories = [...new Set(parsedMenuData.map(item => item.Category).filter(Boolean))];
+          setCategories(uniqueCategories);
+          console.log('Loaded data from localStorage as fallback');
+        }
+      }
     } catch (error) {
       console.error('Error loading data:', error);
     }
@@ -389,16 +424,21 @@ const Admin = () => {
 
   const saveToCSV = async () => {
     try {
-      // Create CSV content
-      const csv = Papa.unparse(menuItems);
+      // Create CSV content with proper headers matching your CSV structure
+      const csvData = menuItems.map(item => ({
+        Category: item.Category || '',
+        Item: item.Item || '',
+        'Regular Price': item['Regular Price'] || '',
+        'Large Price': item['Large Price'] || '',
+        Price: item.Price || '',
+        'With Cone': item['With Cone'] || '',
+        '': '', // Empty column for 7th position
+        img: item.img || ''
+      }));
       
-      // Create form data to send to server
-      const formData = new FormData();
-      formData.append('csvData', csv);
-      formData.append('filename', 'Menu_Data.csv');
+      const csv = Papa.unparse(csvData);
       
-      // In a real application, you would send this to your backend
-      // For now, we'll download it and the user can manually replace the file
+      // Download the updated CSV
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -406,7 +446,11 @@ const Admin = () => {
       a.download = 'Menu_Data_Updated.csv';
       a.click();
       
-      alert('CSV file downloaded. Please replace the existing Menu_Data.csv file with this updated version.');
+      // Store the updated data in localStorage as backup
+      localStorage.setItem('kurtosMenuData', JSON.stringify(menuItems));
+      localStorage.setItem('kurtosCategories', JSON.stringify(categories));
+      
+      alert('CSV file downloaded successfully! Please replace the existing Menu_Data.csv file with this updated version.');
     } catch (error) {
       console.error('Error saving CSV:', error);
       alert('Error saving data. Please try again.');
@@ -414,13 +458,34 @@ const Admin = () => {
   };
 
   const exportCSV = () => {
-    const csv = Papa.unparse(menuItems);
+    // Create CSV content with proper headers matching your CSV structure
+    const csvData = menuItems.map(item => ({
+      Category: item.Category || '',
+      Item: item.Item || '',
+      'Regular Price': item['Regular Price'] || '',
+      'Large Price': item['Large Price'] || '',
+      Price: item.Price || '',
+      'With Cone': item['With Cone'] || '',
+      '': '', // Empty column for 7th position
+      img: item.img || ''
+    }));
+    
+    const csv = Papa.unparse(csvData);
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'Menu_Data.csv';
     a.click();
+  };
+
+  const clearLocalStorage = () => {
+    if (window.confirm('This will clear all locally saved changes. Are you sure?')) {
+      localStorage.removeItem('kurtosMenuData');
+      localStorage.removeItem('kurtosCategories');
+      loadData(); // Reload from CSV
+      alert('Local changes cleared. Data reloaded from CSV file.');
+    }
   };
 
   if (!isLoggedIn) {
@@ -453,7 +518,19 @@ const Admin = () => {
       <AdminPanel>
         <Header>
           <h1>Kurtos Admin Panel</h1>
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            {localStorage.getItem('kurtosMenuData') && (
+              <span style={{ 
+                backgroundColor: '#28a745', 
+                color: 'white', 
+                padding: '0.5rem 1rem', 
+                borderRadius: '20px', 
+                fontSize: '0.9rem',
+                fontWeight: 'bold'
+              }}>
+                💾 Local Changes Saved
+              </span>
+            )}
             <Button onClick={loadData} style={{ backgroundColor: '#17a2b8' }}>Refresh Data</Button>
             <Button onClick={() => setIsLoggedIn(false)}>Logout</Button>
           </div>
@@ -728,8 +805,21 @@ const Admin = () => {
             <div style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
               <strong>Important:</strong> After making changes, download the updated CSV and replace the existing <code>Menu_Data.csv</code> file in the <code>public</code> folder to see changes on the menu pages.
             </div>
+            <div style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#fff3cd', borderRadius: '8px' }}>
+              <strong>🚀 Vercel Deployment:</strong> If you're deploying on Vercel, make sure to upload the updated CSV file to the <code>public</code> folder in your Vercel project. The CSV file must be accessible at the root URL.
+            </div>
+            <div style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#e3f2fd', borderRadius: '8px' }}>
+              <strong>🎥 Video Files:</strong> Make sure all video files (reel1.mp4 to reel6.mp4) are uploaded to the <code>public</code> folder in your Vercel project for the reels gallery to work properly.
+            </div>
+            <div style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#f3e5f5', borderRadius: '8px' }}>
+              <strong>📧 Email System:</strong> The checkout system now automatically sends order emails to your team using Gmail API. Make sure all Gmail environment variables are set in Vercel for this to work.
+            </div>
+            <div style={{ marginBottom: '1rem', padding: '1rem', backgroundColor: '#e8f5e8', borderRadius: '8px' }}>
+              <strong>💾 Local Storage:</strong> Your changes are automatically saved locally. This prevents data loss when refreshing the page.
+            </div>
             <Button onClick={exportCSV}>Download Updated CSV</Button>
             <Button onClick={saveToCSV} style={{ backgroundColor: '#17a2b8', marginLeft: '1rem' }}>Save All Changes</Button>
+            <Button onClick={clearLocalStorage} style={{ backgroundColor: '#dc3545', marginLeft: '1rem' }}>Clear Local Changes</Button>
           </FormContainer>
         )}
       </AdminPanel>

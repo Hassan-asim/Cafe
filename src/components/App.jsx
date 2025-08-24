@@ -41,6 +41,7 @@ const App = () => {
         <Route path="/menu" element={<Menu />} />
         <Route path="/menu/:category" element={<MenuCategory />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="*" element={<Home />} />
       </Routes>
       <Footer />
     </div>
