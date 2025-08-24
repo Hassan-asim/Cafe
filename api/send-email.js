@@ -1,5 +1,27 @@
 import { google } from 'googleapis';
 
+// Add error handling for missing environment variables
+const requiredEnvVars = [
+  'GMAIL_CLIENT_ID',
+  'GMAIL_CLIENT_SECRET', 
+  'GMAIL_REFRESH_TOKEN',
+  'GMAIL_RECIPIENT_1'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+if (missingVars.length > 0) {
+  console.error('Missing required environment variables:', missingVars);
+}
+
+// Log all environment variables for debugging (remove in production)
+console.log('Environment variables check:', {
+  hasClientId: !!process.env.GMAIL_CLIENT_ID,
+  hasClientSecret: !!process.env.GMAIL_CLIENT_SECRET,
+  hasRefreshToken: !!process.env.GMAIL_REFRESH_TOKEN,
+  hasRecipient: !!process.env.GMAIL_RECIPIENT_1,
+  totalEnvVars: Object.keys(process.env).length
+});
+
 export default async function handler(req, res) {
   console.log('Email API called:', { method: req.method, timestamp: new Date().toISOString() });
   
@@ -21,6 +43,13 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Check if all required environment variables are present
+    if (missingVars.length > 0) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Server configuration error. Please contact support.' 
+      });
+    }
 
     // Initialize Gmail API
     const oauth2Client = new google.auth.OAuth2(

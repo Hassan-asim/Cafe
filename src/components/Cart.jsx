@@ -418,7 +418,7 @@ Address: ${customerInfo.address}`;
       };
 
       // Send order email via API
-      const response = await fetch('/send-email', {
+      const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
