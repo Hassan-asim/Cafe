@@ -20,6 +20,7 @@ const HeroContainer = styled.div`
   color: ${({ theme }) => theme.colors.dark};
   overflow: hidden;
   position: relative;
+  width: 100%;
 `;
 
 const LogoContainer = styled(motion.div)`
@@ -92,6 +93,11 @@ const SidePostContainer = styled(motion.div)`
   @media (max-width: 768px) {
     width: 120px;
     height: 160px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100px;
+    height: 140px;
   }
 
   img {

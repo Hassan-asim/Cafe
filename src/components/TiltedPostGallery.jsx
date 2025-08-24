@@ -20,6 +20,8 @@ const GalleryContainer = styled.div`
   margin: 4rem 0;
   padding: 2rem;
   background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary} 0%, ${({ theme }) => theme.colors.secondary} 100%);
+  overflow-x: hidden;
+  width: 100%;
   
   @media (max-width: 768px) {
     height: 600px;
@@ -65,12 +67,12 @@ const TiltedPostGallery = () => {
     { src: Post2, x: '20%', y: '5%', rotate: 12, delay: 0.1 },
     { src: Post3, x: '40%', y: '15%', rotate: -5, delay: 0.2 },
     { src: Post4, x: '60%', y: '8%', rotate: 10, delay: 0.3 },
-    { src: Post6, x: '80%', y: '12%', rotate: -12, delay: 0.4 },
+    { src: Post6, x: '75%', y: '12%', rotate: -12, delay: 0.4 },
     { src: Post7, x: '10%', y: '40%', rotate: 15, delay: 0.5 },
     { src: Post8, x: '30%', y: '45%', rotate: -10, delay: 0.6 },
     { src: Post9, x: '55%', y: '35%', rotate: 8, delay: 0.7 },
-    { src: Post10, x: '75%', y: '50%', rotate: -15, delay: 0.8 },
-    { src: Post11, x: '90%', y: '25%', rotate: 7, delay: 0.9 },
+    { src: Post10, x: '70%', y: '50%', rotate: -15, delay: 0.8 },
+    { src: Post11, x: '85%', y: '25%', rotate: 7, delay: 0.9 },
     { src: Post12, x: '15%', y: '70%', rotate: -5, delay: 1.0 },
     { src: CoffeePost, x: '65%', y: '70%', rotate: 12, delay: 1.1 },
   ];

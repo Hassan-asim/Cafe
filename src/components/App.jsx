@@ -33,7 +33,7 @@ const App = () => {
           }, []);
 
             return (
-            <div>
+            <div style={{ overflowX: 'hidden', width: '100%' }}>
               <Navbar toggleCart={toggleCart} />
               <Cart isOpen={isCartOpen} toggleCart={toggleCart} />
               <Routes>
