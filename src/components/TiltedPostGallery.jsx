@@ -20,8 +20,6 @@ const GalleryContainer = styled.div`
   margin: 4rem 0;
   padding: 2rem;
   background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary} 0%, ${({ theme }) => theme.colors.secondary} 100%);
-  overflow-x: hidden;
-  width: 100%;
   
   @media (max-width: 768px) {
     height: 600px;

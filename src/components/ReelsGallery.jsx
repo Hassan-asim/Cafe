@@ -9,8 +9,6 @@ const ReelsSection = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  overflow-x: hidden;
-  width: 100%;
 `;
 
 const Title = styled.h2`
@@ -33,7 +31,6 @@ const ReelsGrid = styled.div`
   max-width: 100%;
   margin: 0 auto;
   flex-wrap: wrap;
-  overflow-x: hidden;
   
   @media (max-width: 1400px) {
     gap: 1.5rem;

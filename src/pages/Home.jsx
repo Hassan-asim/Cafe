@@ -15,8 +15,6 @@ import StitchingMarks from '../components/StitchingMarks';
 
 const HomeContainer = styled.div`
   background: linear-gradient(to bottom right, ${({ theme }) => theme.colors.gradientStart}, ${({ theme }) => theme.colors.gradientEnd});
-  overflow-x: hidden;
-  width: 100%;
 `;
 
 const Section = styled.div`

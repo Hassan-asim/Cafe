@@ -9,8 +9,6 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   html {
-    overflow-x: hidden;
-    width: 100%;
   }
 
   body {
@@ -19,26 +17,8 @@ export const GlobalStyle = createGlobalStyle`
     font-family: 'Pacifico', cursive;
     background-color: ${theme.colors.light};
     min-height: 100vh;
-    overflow-x: hidden;
-    width: 100%;
   }
 
   #root {
-    overflow-x: hidden;
-    width: 100%;
-  }
-
-  /* Ensure all containers respect viewport width */
-  div, section, main, aside, header, footer {
-    max-width: 100vw;
-    overflow-x: hidden;
-  }
-
-  /* Prevent horizontal scroll on mobile */
-  @media (max-width: 768px) {
-    html, body, #root {
-      overflow-x: hidden;
-      width: 100%;
-    }
   }
 `;
