@@ -19,8 +19,9 @@ const GalleryContainer = styled.div`
   height: 800px;
   margin: 4rem 0;
   padding: 2rem;
+  overflow: none;
   background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary} 0%, ${({ theme }) => theme.colors.secondary} 100%);
-  
+  overflow: hidden;
   @media (max-width: 768px) {
     height: 600px;
     margin: 2rem 0;
@@ -33,6 +34,7 @@ const PostCard = styled(motion.div)`
   width: 250px;
   height: 300px;
   border-radius: 15px;
+  
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 8px 25px rgba(0,0,0,0.15);
